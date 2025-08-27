@@ -1,0 +1,317 @@
+# LangGraph Customer Support Agent Configuration
+# Langie Agent - Structured Workflow Configuration
+
+agent:
+  name: "Langie"
+  description: "LangGraph Customer Support Agent with 11-stage workflow"
+  version: "1.0.0"
+
+# Input Schema Definition
+input_schema:
+  required_fields:
+    - customer_name: 
+        type: "string"
+        description: "Customer's full name"
+    - email:
+        type: "string"
+        format: "email"
+        description: "Customer's email address"
+    - query:
+        type: "string"
+        description: "Customer's support request or issue description"
+    - priority:
+        type: "string"
+        enum: ["low", "medium", "high", "critical"]
+        default: "medium"
+        description: "Ticket priority level"
+    - ticket_id:
+        type: "string"
+        description: "Unique ticket identifier"
+        pattern: "^TKT-[A-Z0-9]{8}$"
+
+# MCP Server Configuration
+mcp_servers:
+  common:
+    description: "Handles abilities with no external data requirements"
+    endpoint: "mcp://common-server"
+    capabilities:
+      - "parse_request_text"
+      - "normalize_fields"
+      - "add_flags_calculations"
+      - "solution_evaluation"
+      - "response_generation"
+  
+  atlas:
+    description: "Handles abilities requiring external system interaction"
+    endpoint: "mcp://atlas-server"
+    capabilities:
+      - "extract_entities"
+      - "enrich_records"
+      - "clarify_question"
+      - "extract_answer"
+      - "knowledge_base_search"
+      - "escalation_decision"
+      - "update_ticket"
+      - "close_ticket"
+      - "execute_api_calls"
+      - "trigger_notifications"
+
+# 11-Stage Workflow Definition
+workflow_stages:
+  - stage: "INTAKE"
+    order: 1
+    icon: "📥"
+    description: "Accept incoming customer request payload"
+    mode: "deterministic"
+    abilities:
+      - name: "accept_payload"
+        server: "internal"
+        description: "Capture incoming request payload"
+    user_prompts:
+      - "Accept and validate customer support request"
+      - "Initialize ticket processing workflow"
+
+  - stage: "UNDERSTAND"
+    order: 2
+    icon: "🧠"
+    description: "Parse and understand customer request"
+    mode: "deterministic"
+    abilities:
+      - name: "parse_request_text"
+        server: "common"
+        description: "Convert unstructured request to structured data"
+      - name: "extract_entities"
+        server: "atlas"
+        description: "Identify product, account, dates from request"
+    user_prompts:
+      - "Execute abilities in sequence to understand the request"
+      - "Parse customer query and extract key entities"
+
+  - stage: "PREPARE"
+    order: 3
+    icon: "🛠️"
+    description: "Prepare and enrich customer data"
+    mode: "deterministic"
+    abilities:
+      - name: "normalize_fields"
+        server: "common"
+        description: "Standardize dates, codes, IDs"
+      - name: "enrich_records"
+        server: "atlas"
+        description: "Add SLA, historical ticket info"
+      - name: "add_flags_calculations"
+        server: "common"
+        description: "Compute priority or SLA risk"
+    user_prompts:
+      - "Execute data preparation abilities in sequence"
+      - "Normalize and enrich customer record data"
+
+  - stage: "ASK"
+    order: 4
+    icon: "❓"
+    description: "Ask for clarification if needed"
+    mode: "deterministic"
+    abilities:
+      - name: "clarify_question"
+        server: "atlas"
+        description: "Request missing information from customer"
+    user_prompts:
+      - "Generate clarification questions for incomplete requests"
+      - "Request additional information from customer if needed"
+
+  - stage: "WAIT"
+    order: 5
+    icon: "⏳"
+    description: "Wait for and process customer response"
+    mode: "deterministic"
+    abilities:
+      - name: "extract_answer"
+        server: "atlas"
+        description: "Capture concise customer response"
+      - name: "store_answer"
+        server: "internal"
+        description: "Update payload with customer response"
+    user_prompts:
+      - "Wait for customer response and extract key information"
+      - "Process and store customer's additional information"
+
+  - stage: "RETRIEVE"
+    order: 6
+    icon: "📚"
+    description: "Retrieve relevant knowledge base information"
+    mode: "deterministic"
+    abilities:
+      - name: "knowledge_base_search"
+        server: "atlas"
+        description: "Lookup KB or FAQ for relevant information"
+      - name: "store_data"
+        server: "internal"
+        description: "Attach retrieved info to payload"
+    user_prompts:
+      - "Search knowledge base for relevant solutions"
+      - "Execute KB lookup and store relevant information"
+
+  - stage: "DECIDE"
+    order: 7
+    icon: "⚖️"
+    description: "Evaluate solutions and make decisions"
+    mode: "non-deterministic"
+    abilities:
+      - name: "solution_evaluation"
+        server: "common"
+        description: "Score potential solutions 1-100"
+      - name: "escalation_decision"
+        server: "atlas"
+        description: "Assign to human agent if score <90"
+      - name: "update_payload"
+        server: "internal"
+        description: "Record decision outcomes"
+    user_prompts:
+      - "Score solutions and escalate if score <90"
+      - "Evaluate solutions dynamically and make escalation decision"
+      - "Choose best solution or escalate based on confidence score"
+    decision_logic:
+      escalation_threshold: 90
+      escalation_condition: "score < 90"
+
+  - stage: "UPDATE"
+    order: 8
+    icon: "🔄"
+    description: "Update ticket status and information"
+    mode: "deterministic"
+    abilities:
+      - name: "update_ticket"
+        server: "atlas"
+        description: "Modify status, fields, priority"
+      - name: "close_ticket"
+        server: "atlas"
+        description: "Mark issue resolved if applicable"
+    user_prompts:
+      - "Update ticket with resolution details"
+      - "Execute ticket status updates in sequence"
+
+  - stage: "CREATE"
+    order: 9
+    icon: "✍️"
+    description: "Generate customer response"
+    mode: "deterministic"
+    abilities:
+      - name: "response_generation"
+        server: "common"
+        description: "Draft professional customer reply"
+    user_prompts:
+      - "Generate professional customer response"
+      - "Create customer-facing reply based on resolution"
+
+  - stage: "DO"
+    order: 10
+    icon: "🏃"
+    description: "Execute actions and notifications"
+    mode: "deterministic"
+    abilities:
+      - name: "execute_api_calls"
+        server: "atlas"
+        description: "Trigger CRM/order system actions"
+      - name: "trigger_notifications"
+        server: "atlas"
+        description: "Send notifications to customer"
+    user_prompts:
+      - "Execute required system actions and notifications"
+      - "Trigger API calls and send customer notifications"
+
+  - stage: "COMPLETE"
+    order: 11
+    icon: "✅"
+    description: "Output final structured payload"
+    mode: "deterministic"
+    abilities:
+      - name: "output_payload"
+        server: "internal"
+        description: "Generate final structured response"
+    user_prompts:
+      - "Output final structured payload with all results"
+      - "Complete workflow and generate summary payload"
+
+# State Management Configuration
+state_management:
+  persistence: true
+  state_variables:
+    - customer_name
+    - email
+    - query
+    - priority
+    - ticket_id
+    - current_stage
+    - stage_results
+    - final_payload
+    - execution_log
+  
+  transitions:
+    - from: "INTAKE"
+      to: "UNDERSTAND"
+      condition: "payload_accepted"
+    
+    - from: "UNDERSTAND"
+      to: "PREPARE"
+      condition: "entities_extracted"
+    
+    - from: "PREPARE"
+      to: "ASK"
+      condition: "data_prepared"
+    
+    - from: "ASK"
+      to: "WAIT"
+      condition: "clarification_sent"
+    
+    - from: "WAIT"
+      to: "RETRIEVE"
+      condition: "response_received"
+    
+    - from: "RETRIEVE"
+      to: "DECIDE"
+      condition: "kb_searched"
+    
+    - from: "DECIDE"
+      to: "UPDATE"
+      condition: "decision_made"
+    
+    - from: "UPDATE"
+      to: "CREATE"
+      condition: "ticket_updated"
+    
+    - from: "CREATE"
+      to: "DO"
+      condition: "response_generated"
+    
+    - from: "DO"
+      to: "COMPLETE"
+      condition: "actions_executed"
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  log_file: "langie_agent.log"
+  
+  tracked_events:
+    - stage_entry
+    - stage_exit
+    - ability_execution
+    - mcp_server_calls
+    - state_updates
+    - decision_points
+    - error_events
+
+# Performance Configuration
+performance:
+  max_execution_time: 300  # seconds
+  max_retries: 3
+  timeout_per_ability: 30  # seconds
+  concurrent_abilities: false  # Execute abilities sequentially
+
+# Error Handling
+error_handling:
+  retry_on_failure: true
+  fallback_responses: true
+  escalate_on_critical_error: true
+  log_all_errors: true
