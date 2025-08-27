@@ -1,40 +1,55 @@
-🤖 Langie - LangGraph Customer Support Agent
+# 🤖 Langie - LangGraph Customer Support Agent
+
 A sophisticated customer support workflow agent built with LangGraph, featuring 11-stage graph-based processing with state persistence and MCP (Model Context Protocol) client integration.
 
-📋 Project Overview
-Langie is a structured and logical LangGraph Agent that processes customer support tickets through a comprehensive 11-stage workflow. Each stage represents a clear phase of the customer support process, with abilities executed through MCP clients connecting to Atlas and Common servers.
+## 📋 Project Overview
 
-🎯 Key Features
-Graph-based Workflow: 11 well-defined stages with clear transitions
-State Persistence: Maintains state variables across all stages
-MCP Integration: Seamless integration with Atlas and Common MCP servers
-Hybrid Execution: Both deterministic and non-deterministic stage execution
-Comprehensive Logging: Detailed execution logs and performance metrics
-Dynamic Decision Making: Runtime orchestration based on context and scoring
-🏗️ Architecture
-Workflow Stages
-Stage	Icon	Description	Mode	Key Abilities
-INTAKE	📥	Accept incoming payload	Deterministic	accept_payload
-UNDERSTAND	🧠	Parse and understand request	Deterministic	parse_request_text, extract_entities
-PREPARE	🛠️	Prepare and enrich data	Deterministic	normalize_fields, enrich_records, add_flags_calculations
-ASK	❓	Request clarification	Deterministic	clarify_question
-WAIT	⏳	Process customer response	Deterministic	extract_answer, store_answer
-RETRIEVE	📚	Knowledge base search	Deterministic	knowledge_base_search, store_data
-DECIDE	⚖️	Evaluate and decide	Non-deterministic	solution_evaluation, escalation_decision, update_payload
-UPDATE	🔄	Update ticket status	Deterministic	update_ticket, close_ticket
-CREATE	✍️	Generate response	Deterministic	response_generation
-DO	🏃	Execute actions	Deterministic	execute_api_calls, trigger_notifications
-COMPLETE	✅	Output final payload	Deterministic	output_payload
-MCP Server Integration
-COMMON Server: Handles abilities with no external data requirements
-ATLAS Server: Manages abilities requiring external system interaction
-Internal: State management and workflow control
-🚀 Quick Start
-Prerequisites
-bash
+**Langie** is a structured and logical LangGraph Agent that processes customer support tickets through a comprehensive 11-stage workflow. Each stage represents a clear phase of the customer support process, with abilities executed through MCP clients connecting to Atlas and Common servers.
+
+### 🎯 Key Features
+
+- **Graph-based Workflow**: 11 well-defined stages with clear transitions
+- **State Persistence**: Maintains state variables across all stages
+- **MCP Integration**: Seamless integration with Atlas and Common MCP servers
+- **Hybrid Execution**: Both deterministic and non-deterministic stage execution
+- **Comprehensive Logging**: Detailed execution logs and performance metrics
+- **Dynamic Decision Making**: Runtime orchestration based on context and scoring
+
+## 🏗️ Architecture
+
+### Workflow Stages
+
+| Stage | Icon | Description | Mode | Key Abilities |
+|-------|------|-------------|------|---------------|
+| **INTAKE** | 📥 | Accept incoming payload | Deterministic | `accept_payload` |
+| **UNDERSTAND** | 🧠 | Parse and understand request | Deterministic | `parse_request_text`, `extract_entities` |
+| **PREPARE** | 🛠️ | Prepare and enrich data | Deterministic | `normalize_fields`, `enrich_records`, `add_flags_calculations` |
+| **ASK** | ❓ | Request clarification | Deterministic | `clarify_question` |
+| **WAIT** | ⏳ | Process customer response | Deterministic | `extract_answer`, `store_answer` |
+| **RETRIEVE** | 📚 | Knowledge base search | Deterministic | `knowledge_base_search`, `store_data` |
+| **DECIDE** | ⚖️ | Evaluate and decide | **Non-deterministic** | `solution_evaluation`, `escalation_decision`, `update_payload` |
+| **UPDATE** | 🔄 | Update ticket status | Deterministic | `update_ticket`, `close_ticket` |
+| **CREATE** | ✍️ | Generate response | Deterministic | `response_generation` |
+| **DO** | 🏃 | Execute actions | Deterministic | `execute_api_calls`, `trigger_notifications` |
+| **COMPLETE** | ✅ | Output final payload | Deterministic | `output_payload` |
+
+### MCP Server Integration
+
+- **COMMON Server**: Handles abilities with no external data requirements
+- **ATLAS Server**: Manages abilities requiring external system interaction
+- **Internal**: State management and workflow control
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+```bash
 pip install asyncio logging dataclasses typing datetime uuid enum
-Basic Usage
-python
+```
+
+### Basic Usage
+
+```python
 import asyncio
 from langie_agent import LangieAgent
 
@@ -54,8 +69,11 @@ async def main():
     print(json.dumps(result, indent=2))
 
 asyncio.run(main())
-📊 Input Schema
-json
+```
+
+## 📊 Input Schema
+
+```json
 {
   "customer_name": "string (required)",
   "email": "string (required, email format)",
@@ -63,8 +81,11 @@ json
   "priority": "string (low|medium|high|critical, default: medium)",
   "ticket_id": "string (format: TKT-XXXXXXXX)"
 }
-🔄 Workflow Execution Flow
-mermaid
+```
+
+## 🔄 Workflow Execution Flow
+
+```mermaid
 graph TD
     A[📥 INTAKE] --> B[🧠 UNDERSTAND]
     B --> C[🛠️ PREPARE]
@@ -79,14 +100,19 @@ graph TD
     
     G -.->|Score < 90| L[Escalate to Human]
     G -.->|Score ≥ 90| H
-🧩 Stage Details
-Non-Deterministic Stage: DECIDE ⚖️
+```
+
+## 🧩 Stage Details
+
+### Non-Deterministic Stage: DECIDE ⚖️
+
 The DECIDE stage implements dynamic orchestration:
 
-Solution Evaluation: Scores potential solutions (1-100)
-Dynamic Decision: If score < 90, escalates to human agent
-Payload Update: Records decision outcomes
-python
+1. **Solution Evaluation**: Scores potential solutions (1-100)
+2. **Dynamic Decision**: If score < 90, escalates to human agent
+3. **Payload Update**: Records decision outcomes
+
+```python
 # Example decision logic
 if best_score < 90:
     # Execute escalation_decision ability
@@ -94,10 +120,13 @@ if best_score < 90:
 else:
     # Proceed with automated resolution
     continue_workflow()
-📝 State Management
+```
+
+## 📝 State Management
+
 The agent maintains persistent state across all stages:
 
-python
+```python
 class WorkflowState:
     customer_name: str
     email: str
@@ -108,19 +137,24 @@ class WorkflowState:
     stage_results: Dict[str, Any]
     final_payload: Dict[str, Any]
     execution_log: List[Dict[str, Any]]
-🔧 Configuration
-The agent uses a comprehensive YAML configuration file (agent_config.yaml) that defines:
+```
 
-Input schema validation
-MCP server endpoints and capabilities
-Stage definitions and execution modes
-State management rules
-Error handling policies
-Logging configuration
-📈 Execution Logging
+## 🔧 Configuration
+
+The agent uses a comprehensive YAML configuration file (`agent_config.yaml`) that defines:
+
+- Input schema validation
+- MCP server endpoints and capabilities
+- Stage definitions and execution modes
+- State management rules
+- Error handling policies
+- Logging configuration
+
+## 📈 Execution Logging
+
 Every ability execution is logged with:
 
-json
+```json
 {
   "timestamp": "2024-01-15T10:30:00Z",
   "stage": "UNDERSTAND",
@@ -128,8 +162,11 @@ json
   "server": "common",
   "result": {...}
 }
-🎯 Sample Output
-json
+```
+
+## 🎯 Sample Output
+
+```json
 {
   "ticket_id": "TKT-2024001",
   "customer": {
@@ -157,67 +194,92 @@ json
   },
   "execution_log": [...]
 }
-🧪 Testing & Demo
+```
+
+## 🧪 Testing & Demo
+
 Run the included demo to see Langie in action:
 
-bash
+```bash
 python langie_agent.py
-This will execute a complete workflow with sample customer data and display:
+```
 
-Stage-by-stage execution logs
-Ability calls to MCP servers
-Final structured payload
-Execution summary statistics
-🔍 Monitoring & Debugging
-Execution Summary
-Total stages completed
-Abilities executed per server
-Processing time
-Success/failure rates
-Logs Analysis
-Stage transition timing
-MCP server response times
-Decision points and reasoning
-Error tracking and recovery
-⚡ Performance Features
-Async Execution: Non-blocking ability execution
-Timeout Management: Configurable timeouts per ability
-Retry Logic: Automatic retry on transient failures
-Resource Optimization: Efficient state management
-🛠️ Development & Extension
-Adding New Stages
-Define stage in agent_config.yaml
-Implement stage logic in LangieAgent
-Add abilities to appropriate MCP servers
-Update state transitions
-Custom Abilities
-python
+This will execute a complete workflow with sample customer data and display:
+- Stage-by-stage execution logs
+- Ability calls to MCP servers
+- Final structured payload
+- Execution summary statistics
+
+## 🔍 Monitoring & Debugging
+
+### Execution Summary
+- Total stages completed
+- Abilities executed per server
+- Processing time
+- Success/failure rates
+
+### Logs Analysis
+- Stage transition timing
+- MCP server response times
+- Decision points and reasoning
+- Error tracking and recovery
+
+## ⚡ Performance Features
+
+- **Async Execution**: Non-blocking ability execution
+- **Timeout Management**: Configurable timeouts per ability
+- **Retry Logic**: Automatic retry on transient failures
+- **Resource Optimization**: Efficient state management
+
+## 🛠️ Development & Extension
+
+### Adding New Stages
+
+1. Define stage in `agent_config.yaml`
+2. Implement stage logic in `LangieAgent`
+3. Add abilities to appropriate MCP servers
+4. Update state transitions
+
+### Custom Abilities
+
+```python
 async def _execute_custom_ability(self, ability_name: str, state: WorkflowState):
     # Implement custom ability logic
     return {"result": "custom_response"}
-🔒 Security & Compliance
-Input validation and sanitization
-Secure MCP client communications
-Audit trail for all operations
-PII handling best practices
-📚 Dependencies
-Python 3.8+
-asyncio: Asynchronous execution
-logging: Comprehensive logging
-typing: Type annotations
-dataclasses: Structured data
-datetime: Timestamp handling
-uuid: Unique identifier generation
-🤝 Contributing
-Fork the repository
-Create a feature branch
-Implement changes with tests
-Submit pull request with detailed description
-📄 License
+```
+
+## 🔒 Security & Compliance
+
+- Input validation and sanitization
+- Secure MCP client communications
+- Audit trail for all operations
+- PII handling best practices
+
+## 📚 Dependencies
+
+- **Python 3.8+**
+- **asyncio**: Asynchronous execution
+- **logging**: Comprehensive logging
+- **typing**: Type annotations
+- **dataclasses**: Structured data
+- **datetime**: Timestamp handling
+- **uuid**: Unique identifier generation
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Implement changes with tests
+4. Submit pull request with detailed description
+
+## 📄 License
+
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-👨‍💻 Author
-Langie Agent - A sophisticated customer support workflow automation system built with LangGraph and MCP integration.
+## 👨‍💻 Author
 
-Langie thinks in stages, carries forward state variables carefully, and orchestrates MCP clients to deliver exceptional customer support experiences.
+**Langie Agent** - A sophisticated customer support workflow automation system built with LangGraph and MCP integration.
 
+---
+
+*Langie thinks in stages, carries forward state variables carefully, and orchestrates MCP clients to deliver exceptional customer support experiences.*
