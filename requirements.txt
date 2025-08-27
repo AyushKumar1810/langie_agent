@@ -1,0 +1,33 @@
+# LangGraph Customer Support Agent - Requirements
+# Core Python dependencies (most are built-in)
+
+# Built-in modules (no installation required):
+# - asyncio
+# - json
+# - logging
+# - typing
+# - dataclasses
+# - datetime
+# - uuid
+# - enum
+# - time
+
+# Optional dependencies for enhanced functionality:
+pyyaml>=6.0        # For YAML configuration file parsing
+pytest>=7.0        # For running tests
+pytest-asyncio>=0.21.0  # For testing async functions
+
+# Future MCP Client Dependencies (when implementing real MCP integration):
+# mcp-client>=1.0.0    # Model Context Protocol client library
+# httpx>=0.24.0        # HTTP client for API calls
+# websockets>=11.0     # WebSocket support for real-time communication
+
+# Development dependencies:
+black>=23.0        # Code formatting
+isort>=5.12.0      # Import sorting
+flake8>=6.0.0      # Code linting
+mypy>=1.5.0        # Type checking
+
+# Documentation:
+mkdocs>=1.5.0      # Documentation generation
+mkdocs-material>=9.0.0  # Material theme for docs
